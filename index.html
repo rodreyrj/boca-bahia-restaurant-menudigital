@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página en Desarrollo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0a0a0a;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .content-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            z-index: 10;
+        }
+
+        canvas {
+            max-width: 100vw; 
+            cursor: pointer;
+            touch-action: none;
+        }
+
+        .message {
+            margin-top: 0.5rem;
+            color: #888;
+            font-size: 1.2rem;
+            text-align: center;
+            animation: fadeIn 2s ease-in-out;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .btn-home {
+            margin-top: 2rem;
+            padding: 0.75rem 2rem;
+            background: transparent;
+            border: 1px solid #333;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .btn-home:hover {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="content-wrapper">
+        <!-- El Canvas renderiza el texto "404" con efecto fuzzy -->
+        <canvas id="fuzzyCanvas"></canvas>
+        
+        <div class="message">
+            <p>Esta página está en desarrollo</p>
+        </div>
+
+        <a href="https://boca-bahia-restaurant.vercel.app/" class="btn-home">Ir a inicio</a>
+    </div>
+
+    <script>
+        class FuzzyText {
+            constructor(canvasId, options) {
+                this.canvas = document.getElementById(canvasId);
+                this.text = options.text || '404';
+                this.fontSize = options.fontSize || 'clamp(8rem, 25vw, 20rem)';
+                this.fontWeight = options.fontWeight || 900;
+                this.fontFamily = options.fontFamily || 'sans-serif';
+                this.color = options.color || '#fff';
+                this.enableHover = options.enableHover !== false;
+                this.baseIntensity = options.baseIntensity || 0.18;
+                this.hoverIntensity = options.hoverIntensity || 0.5;
+                
+                this.ctx = this.canvas.getContext('2d');
+                this.offscreen = document.createElement('canvas');
+                this.offCtx = this.offscreen.getContext('2d');
+                
+                this.isHovering = false;
+                this.animationFrameId = null;
+                this.isCancelled = false;
+
+                this.width = 0;
+                this.height = 0;
+                this.interactiveArea = { left: 0, right: 0, top: 0, bottom: 0 };
+
+                this.init();
+            }
+
+            async init() {
+                if (document.fonts && document.fonts.ready) {
+                    await document.fonts.ready;
+                }
+
+                this.resizeAndMeasure();
+                this.setupEvents();
+                this.run();
+                
+                window.addEventListener('resize', () => {
+                    this.resizeAndMeasure();
+                });
+            }
+
+            getNumericFontSize() {
+                const temp = document.createElement('span');
+                temp.style.fontSize = this.fontSize;
+                temp.style.fontFamily = this.fontFamily;
+                temp.style.visibility = 'hidden';
+                temp.style.position = 'absolute';
+                temp.innerText = 'M';
+                document.body.appendChild(temp);
+                const computed = window.getComputedStyle(temp).fontSize;
+                document.body.removeChild(temp);
+                return parseFloat(computed);
+            }
+
+            resizeAndMeasure() {
+                const numericFontSize = this.getNumericFontSize();
+                const fontSizeStr = `${numericFontSize}px`;
+
+                this.offCtx.font = `${this.fontWeight} ${fontSizeStr} ${this.fontFamily}`;
+                this.offCtx.textBaseline = 'alphabetic';
+                
+                const metrics = this.offCtx.measureText(this.text);
+                
+                const actualLeft = metrics.actualBoundingBoxLeft ?? 0;
+                const actualRight = metrics.actualBoundingBoxRight ?? metrics.width;
+                const actualAscent = metrics.actualBoundingBoxAscent ?? numericFontSize;
+                const actualDescent = metrics.actualBoundingBoxDescent ?? numericFontSize * 0.2;
+
+                const textBoundingWidth = Math.ceil(actualLeft + actualRight);
+                const tightHeight = Math.ceil(actualAscent + actualDescent);
+
+                const extraWidthBuffer = 10;
+                const offscreenWidth = textBoundingWidth + extraWidthBuffer;
+
+                this.offscreen.width = offscreenWidth;
+                this.offscreen.height = tightHeight;
+
+                const xOffset = extraWidthBuffer / 2;
+                
+                this.offCtx.font = `${this.fontWeight} ${fontSizeStr} ${this.fontFamily}`;
+                this.offCtx.textBaseline = 'alphabetic';
+                this.offCtx.fillStyle = this.color;
+                this.offCtx.fillText(this.text, xOffset - actualLeft, actualAscent);
+
+                const horizontalMargin = 50;
+                const verticalMargin = 20;
+                
+                this.canvas.width = offscreenWidth + horizontalMargin * 2;
+                this.canvas.height = tightHeight + verticalMargin * 2;
+                
+                this.offscreenWidth = offscreenWidth;
+                this.tightHeight = tightHeight;
+                
+                this.interactiveArea = {
+                    left: horizontalMargin + xOffset,
+                    top: verticalMargin,
+                    right: horizontalMargin + xOffset + textBoundingWidth,
+                    bottom: verticalMargin + tightHeight
+                };
+                
+                this.ctx.translate(horizontalMargin, verticalMargin);
+            }
+
+            run() {
+                const loop = () => {
+                    if (this.isCancelled) return;
+
+                    const fuzzRange = 30; 
+                    
+                    this.ctx.clearRect(
+                        -fuzzRange, 
+                        -fuzzRange, 
+                        this.offscreenWidth + 2 * fuzzRange, 
+                        this.tightHeight + 2 * fuzzRange
+                    );
+
+                    const intensity = this.isHovering ? this.hoverIntensity : this.baseIntensity;
+
+                    for (let j = 0; j < this.tightHeight; j++) {
+                        const dx = Math.floor(intensity * (Math.random() - 0.5) * fuzzRange);
+                        
+                        this.ctx.drawImage(
+                            this.offscreen, 
+                            0, j, this.offscreenWidth, 1,
+                            dx, j, this.offscreenWidth, 1
+                        );
+                    }
+
+                    this.animationFrameId = requestAnimationFrame(loop);
+                };
+                loop();
+            }
+
+            isInsideTextArea(x, y) {
+                return x >= this.interactiveArea.left && 
+                       x <= this.interactiveArea.right && 
+                       y >= this.interactiveArea.top && 
+                       y <= this.interactiveArea.bottom;
+            }
+
+            setupEvents() {
+                if (!this.enableHover) return;
+
+                const handleMove = (clientX, clientY) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = clientX - rect.left;
+                    const y = clientY - rect.top;
+                    this.isHovering = this.isInsideTextArea(x, y);
+                };
+
+                this.canvas.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+                this.canvas.addEventListener('mouseleave', () => { this.isHovering = false; });
+
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    handleMove(touch.clientX, touch.clientY);
+                }, { passive: false });
+
+                this.canvas.addEventListener('touchend', () => { this.isHovering = false; });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new FuzzyText('fuzzyCanvas', {
+                text: '404', // Puedes cambiar esto a 'WIP' o 'DEV' si lo prefieres
+                fontSize: 'clamp(6rem, 20vw, 15rem)',
+                enableHover: true,
+                baseIntensity: 0.2,
+                hoverIntensity: 0.5,
+                color: '#ffffff',
+                fontFamily: 'Arial, Helvetica, sans-serif'
+            });
+        });
+    </script>
+</body>
+</html>
