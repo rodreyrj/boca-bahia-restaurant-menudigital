@@ -3,364 +3,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boca Bahía Restaurant - Menú Digital</title>
+    <title>Menú Digital | Boca Bahía Restaurant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /*
-        ============================================================
-        CSS: Estilos Generales y Responsividad
-        ============================================================
-        */
-        :root {
-            /* Colores principales */
-            --color-primary: #8B0000; /* Rojo Oscuro (para el acento del logo) */
-            --color-secondary: #f0f0f0; /* Fondo claro */
-            --color-text: #333; /* Texto principal */
-            --color-border: #ccc;
-            --color-header-bg: #fff;
-            --color-accent: #DAA520; /* Dorado para detalles */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
+
+        * {
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth;
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            background-color: #050505;
+            color: #ffffff;
             margin: 0;
-            padding: 0;
-            background-color: var(--color-secondary);
-            color: var(--color-text);
-            line-height: 1.6;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 800px; /* Ancho máximo en PC/tablet */
-            margin: 0 auto;
-            padding: 10px;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* --- Encabezado --- */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 15px 0;
-            background-color: var(--color-header-bg);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            text-align: center;
+        .category-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .logo-img {
-            max-width: 150px; /* Tamaño del logo */
-            height: auto;
-            margin-right: 15px;
-        }
-
-        .restaurant-title {
-            font-size: 1.8em;
-            color: var(--color-primary);
-            margin: 0;
-            font-weight: bold;
-        }
-        
-        /* --- Estilo de Categorías (Accordion) --- */
-        .category-button {
-            background-color: var(--color-primary);
-            color: white;
-            cursor: pointer;
-            padding: 15px;
-            width: 100%;
-            border: none;
-            text-align: left;
-            outline: none;
-            font-size: 1.2em;
-            transition: 0.4s;
-            margin-top: 5px;
-            border-radius: 5px;
-        }
-
-        .category-button:hover, .active {
-            background-color: #A52A2A; /* Un poco más claro al pasar el ratón o activo */
+        .category-btn.active {
+            background-color: #4f46e5;
+            border-color: #6366f1;
+            transform: scale(1.02);
         }
 
         .menu-content {
-            padding: 0 18px;
-            background-color: white;
-            max-height: 0; /* Clave para el efecto de colapso */
+            max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-out;
-            border: 1px solid var(--color-border);
-            border-top: none;
-            margin-bottom: 10px;
-        }
-        
-        .menu-content h3 {
-            color: var(--color-primary);
-            border-bottom: 2px solid var(--color-accent);
-            padding-bottom: 5px;
-            margin-top: 15px;
-            margin-bottom: 10px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
         }
 
-        /* --- Estilo de la Tabla de Menú --- */
-        .menu-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 15px;
+        .menu-content.open {
+            max-height: 2500px;
+            opacity: 1;
+            padding-bottom: 20px;
         }
 
-        .menu-table td {
-            padding: 10px 0;
-            border-bottom: 1px solid var(--color-border);
+        .price-tag {
+            font-family: monospace;
+            color: #818cf8;
         }
 
-        .menu-table td:first-child {
-            /* Nombre del plato */
-            text-align: left;
-            font-weight: 500;
+        .gradient-text {
+            background: linear-gradient(90deg, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .menu-table td:last-child {
-            /* Precio */
-            text-align: right;
-            font-weight: bold;
-            color: var(--color-primary);
-            width: 80px; /* Ancho fijo para el precio */
-        }
-        
-        /* Estilo especial para el menú infantil */
-        .kids-section {
-            text-align: center;
-            padding: 20px 0;
+        /* Marquee de Frases */
+        .marquee-inner {
+            animation: marqueeScroll 30s linear infinite;
+            display: flex;
+            width: max-content;
         }
 
-        /*
-        ============================================================
-        Media Queries: Ajustes para Móvil
-        ============================================================
-        */
-        @media (max-width: 600px) {
-            .restaurant-title {
-                font-size: 1.5em;
-            }
-            .logo-img {
-                max-width: 120px;
-            }
-            .category-button {
-                font-size: 1.1em;
-                padding: 12px;
-            }
-            .menu-table td {
-                padding: 8px 0;
-            }
+        @keyframes marqueeScroll {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
         }
 
+        .phrase-item {
+            font-weight: 800;
+            font-style: italic;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 1rem;
+            margin: 0 40px;
+            color: rgba(255, 255, 255, 0.4);
+            white-space: nowrap;
+        }
+
+        .phrase-item span {
+            color: #4f46e5;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header class="header">
-            <img src="https://i.postimg.cc/KxR9WM3g/IMG-20251122-WA0040(1).jpg" alt="Logo de Boca Bahía Restaurant" class="logo-img">
-            <h1 class="restaurant-title">Boca Bahía Restaurant</h1>
-        </header>
+    <!-- Header -->
+    <header class="sticky top-0 z-50 glass-card border-b border-white/10 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <img src="https://i.postimg.cc/KxR9WM3g/IMG-20251122-WA0040(1).jpg" alt="Logo" class="w-10 h-10 rounded-full object-cover border border-indigo-500">
+            <h1 class="text-lg font-black tracking-tighter uppercase italic">Boca <span class="text-indigo-500">Bahía</span></h1>
+        </div>
+        <!-- Link actualizado a la web principal -->
+        <a href="https://bocabahiarestaurant.vercel.app/" class="text-xs uppercase tracking-widest font-bold text-indigo-400 hover:text-white transition flex items-center gap-2">
+            <i class="fas fa-home"></i> Inicio
+        </a>
+    </header>
 
-        <button class="category-button" data-content-id="pescado-especial">🐟 Pescado & Especial</button>
-        <div class="menu-content" id="pescado-especial">
-            
-            <h3>Pescado</h3>
-            <table class="menu-table">
-                <tr><td>Pescado frito</td><td>1500</td></tr>
-                <tr><td>Pescado a la criolla</td><td>1550</td></tr>
-                <tr><td>Pescado a la Bahía</td><td>1800</td></tr>
-                <tr><td>Filete de tilapia Grill</td><td>1700</td></tr>
-                <tr><td>Filete de pescado al Grill</td><td>1800</td></tr>
-                <tr><td>Filete a la Bahía</td><td>1950</td></tr>
-                <tr><td>Filete a la criolla</td><td>1850</td></tr>
-                <tr><td>Tronchos de merluza</td><td>1800</td></tr>
-                <tr><td>Bistec de macabí</td><td>1400</td></tr>
-                <tr><td>Frito de macabí</td><td>1400</td></tr>
-            </table>
-
-            <h3>Especial</h3>
-            <table class="menu-table">
-                <tr><td>Arroz frito especial</td><td>1500</td></tr>
-                <tr><td>Mar y tierra</td><td>1950</td></tr>
-                <tr><td>Cerdo asado</td><td>1500</td></tr>
-            </table>
+    <main class="max-w-2xl mx-auto px-4 mt-8 pb-10">
+        
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-extrabold uppercase tracking-tight mb-2">Nuestro <span class="gradient-text">Menú Digital</span></h2>
+            <p class="text-gray-500 text-sm">Explora nuestras delicias frescas y tradicionales</p>
         </div>
 
-        <button class="category-button" data-content-id="pizzas-postres">🍕 Pizzas & Postres</button>
-        <div class="menu-content" id="pizzas-postres">
-            <h3>Pizzas</h3>
-            <table class="menu-table">
-                <tr><td>Queso</td><td>550</td></tr>
-                <tr><td>Queso doble</td><td>800</td></tr>
-                <tr><td>Jamón</td><td>275</td></tr>
-                <tr><td>Salchicha</td><td>220</td></tr>
-                <tr><td>Chorizo</td><td>300</td></tr>
-                <tr><td>Vegetales</td><td>220</td></tr>
-                <tr><td>Peperoni</td><td>350</td></tr>
-                <tr><td>Hawaiana</td><td>400</td></tr>
-                <tr><td>Boca Bahía especial</td><td>1200</td></tr>
-                <tr><td>Mixta suprema</td><td>1300</td></tr>
-            </table>
-            
-            <h3>Postres</h3>
-            <table class="menu-table">
-                <tr><td>Panetela borracha</td><td>120</td></tr>
-                <tr><td>Cuña de cake</td><td>300</td></tr>
-                <tr><td>Tres leches</td><td>800</td></tr>
-                <tr><td>Cake entero</td><td>2000</td></tr>
-            </table>
+        <!-- CATEGORIAS -->
+        <div class="space-y-4" id="accordionMenu">
+
+            <!-- 1. Pescado & Especial -->
+            <div class="category-item">
+                <button class="category-btn w-full glass-card p-5 rounded-2xl flex items-center justify-between group" onclick="toggleCategory(this)">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition">
+                            <i class="fas fa-fish"></i>
+                        </div>
+                        <span class="font-bold uppercase tracking-widest text-sm">Pescado & Especial</span>
+                    </div>
+                    <i class="fas fa-chevron-down text-xs opacity-30 transition-transform duration-300"></i>
+                </button>
+                <div class="menu-content px-2">
+                    <div class="mt-4 space-y-2">
+                        <h4 class="text-[10px] uppercase tracking-[0.3em] text-indigo-400 font-bold mb-3 ml-2">Del Mar</h4>
+                        <div class="space-y-1">
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Pescado frito</span> <span class="price-tag font-bold text-indigo-400">$1500</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Pescado a la criolla</span> <span class="price-tag font-bold text-indigo-400">$1550</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Pescado a la Bahía</span> <span class="price-tag font-bold text-indigo-400">$1800</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Filete de tilapia Grill</span> <span class="price-tag font-bold text-indigo-400">$1700</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Filete de pescado al Grill</span> <span class="price-tag font-bold text-indigo-400">$1800</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Filete a la Bahía</span> <span class="price-tag font-bold text-indigo-400">$1950</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Filete a la criolla</span> <span class="price-tag font-bold text-indigo-400">$1850</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Tronchos de merluza</span> <span class="price-tag font-bold text-indigo-400">$1800</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Bistec de macabí</span> <span class="price-tag font-bold text-indigo-400">$1400</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Frito de macabí</span> <span class="price-tag font-bold text-indigo-400">$1400</span></div>
+                        </div>
+                        <h4 class="text-[10px] uppercase tracking-[0.3em] text-indigo-400 font-bold mt-6 mb-3 ml-2">Especialidades</h4>
+                        <div class="space-y-1">
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Arroz frito especial</span> <span class="price-tag font-bold text-indigo-400">$1500</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Mar y tierra</span> <span class="price-tag font-bold text-indigo-400">$1950</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Cerdo asado</span> <span class="price-tag font-bold text-indigo-400">$1500</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Pizzas & Postres -->
+            <div class="category-item">
+                <button class="category-btn w-full glass-card p-5 rounded-2xl flex items-center justify-between group" onclick="toggleCategory(this)">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition">
+                            <i class="fas fa-pizza-slice"></i>
+                        </div>
+                        <span class="font-bold uppercase tracking-widest text-sm">Pizzas & Postres</span>
+                    </div>
+                    <i class="fas fa-chevron-down text-xs opacity-30 transition-transform duration-300"></i>
+                </button>
+                <div class="menu-content px-2">
+                    <div class="mt-4 space-y-2">
+                        <h4 class="text-[10px] uppercase tracking-[0.3em] text-indigo-400 font-bold mb-3 ml-2">Pizzas (Artesanales)</h4>
+                        <div class="grid grid-cols-1 gap-1">
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Queso</span> <span class="price-tag">$550</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Queso doble</span> <span class="price-tag">$800</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Jamón</span> <span class="price-tag">$275</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Salchicha</span> <span class="price-tag">$220</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Chorizo</span> <span class="price-tag">$300</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Peperoni</span> <span class="price-tag">$350</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Boca Bahía Especial</span> <span class="price-tag">$1200</span></div>
+                        </div>
+                        <h4 class="text-[10px] uppercase tracking-[0.3em] text-indigo-400 font-bold mt-6 mb-3 ml-2">Postres Dulces</h4>
+                        <div class="grid grid-cols-1 gap-1">
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Panetela borracha</span> <span class="price-tag">$120</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Tres leches</span> <span class="price-tag">$800</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Cake entero</span> <span class="price-tag font-bold">$2000</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Aperitivos & Entrantes -->
+            <div class="category-item">
+                <button class="category-btn w-full glass-card p-5 rounded-2xl flex items-center justify-between group" onclick="toggleCategory(this)">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <span class="font-bold uppercase tracking-widest text-sm">Aperitivos & Tacos</span>
+                    </div>
+                    <i class="fas fa-chevron-down text-xs opacity-30 transition-transform duration-300"></i>
+                </button>
+                <div class="menu-content px-2">
+                    <div class="mt-4 space-y-4">
+                        <div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Croquetas de Jamón (5)</span> <span class="price-tag">$800</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Ensalada fría</span> <span class="price-tag">$450</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Empanadas jamón y queso</span> <span class="price-tag">$300</span></div>
+                        </div>
+                        <h4 class="text-[10px] uppercase tracking-[0.3em] text-indigo-400 font-bold ml-2">Tacos (Ración 3)</h4>
+                        <div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Taco de Camarón</span> <span class="price-tag">$750</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Taco de Pescado</span> <span class="price-tag">$750</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Taco de Cerdo</span> <span class="price-tag">$700</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Platos Fuertes & Mariscos -->
+            <div class="category-item">
+                <button class="category-btn w-full glass-card p-5 rounded-2xl flex items-center justify-between group" onclick="toggleCategory(this)">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition">
+                            <i class="fas fa-drumstick-bite"></i>
+                        </div>
+                        <span class="font-bold uppercase tracking-widest text-sm">Fuertes & Mariscos</span>
+                    </div>
+                    <i class="fas fa-chevron-down text-xs opacity-30 transition-transform duration-300"></i>
+                </button>
+                <div class="menu-content px-2">
+                    <div class="mt-4 space-y-2">
+                        <h4 class="text-[10px] uppercase tracking-[0.3em] text-indigo-400 font-bold mb-3 ml-2">Carnes</h4>
+                        <div class="space-y-1">
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Bistec de cerdo</span> <span class="price-tag">$1500</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Milanesa de cerdo</span> <span class="price-tag">$1650</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Pollo frito</span> <span class="price-tag">$1400</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Fricasé de ovejo</span> <span class="price-tag">$1500</span></div>
+                        </div>
+                        <h4 class="text-[10px] uppercase tracking-[0.3em] text-indigo-400 font-bold mt-6 mb-3 ml-2">Mariscos Premium</h4>
+                        <div class="space-y-1">
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Langosta al ajillo</span> <span class="price-tag">$1900</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Camarones enchilados</span> <span class="price-tag">$1500</span></div>
+                            <div class="flex justify-between p-3 border-b border-white/5"><span>Pulpo a la criolla</span> <span class="price-tag">$1500</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Niños -->
+            <div class="category-item">
+                <button class="category-btn w-full border border-indigo-500/30 bg-indigo-500/5 p-5 rounded-2xl flex items-center justify-between group" onclick="toggleCategory(this)">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition">
+                            <i class="fas fa-baby"></i>
+                        </div>
+                        <span class="font-bold uppercase tracking-widest text-sm">Menú Infantil</span>
+                    </div>
+                    <i class="fas fa-chevron-down text-xs opacity-30 transition-transform duration-300"></i>
+                </button>
+                <div class="menu-content px-2">
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between p-3 border-b border-white/5"><span>Macarrón al queso</span> <span class="price-tag">$400</span></div>
+                        <div class="flex justify-between p-3 border-b border-white/5"><span>Salchicha frita</span> <span class="price-tag">$300</span></div>
+                        <div class="flex justify-between p-3 border-b border-white/5"><span>Spaguettis con salchicha</span> <span class="price-tag">$650</span></div>
+                        <p class="text-[10px] text-center text-gray-500 italic mt-4">Platos pensados para los más pequeños</p>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <button class="category-button" data-content-id="sandwiches-bebidas">🥪 Sandwiches & Bebidas</button>
-        <div class="menu-content" id="sandwiches-bebidas">
-            <h3>Sandwiches</h3>
-            <table class="menu-table">
-                <tr><td>De jamón y queso</td><td>450</td></tr>
-                <tr><td>De Salchicha</td><td>400</td></tr>
-                <tr><td>Cubano</td><td>550</td></tr>
-            </table>
-
-            <h3>Bebidas</h3>
-            <table class="menu-table">
-                <tr><td>Refresco enlatado</td><td>290</td></tr>
-                <tr><td>Malta</td><td>300</td></tr>
-                <tr><td>Cerveza</td><td>310</td></tr>
-                <tr><td>Agua mineral</td><td>500</td></tr>
-            </table>
-        </div>
-
-        <button class="category-button" data-content-id="ninos">👶 Menú para Niños</button>
-        <div class="menu-content" id="ninos">
-            <h3>Menú para Niños</h3>
-            <table class="menu-table">
-                <tr><td>Macarrón al queso</td><td>400</td></tr>
-                <tr><td>Salchicha frita</td><td>300</td></tr>
-                <tr><td>Salchicha en salsa</td><td>700</td></tr>
-                <tr><td>Spaguettis con salchicha</td><td>650</td></tr>
-                <tr><td>Salchicha con queso</td><td>300</td></tr>
-                <tr><td>Salchicha con jamón</td><td>350</td></tr>
-                <tr><td>Sopa instantánea</td><td>400</td></tr>
-            </table>
-            <div class="kids-section">
-                <p style="font-style: italic; color: var(--color-primary);">¡Platos pensados para los más pequeños!</p>
+        <!-- Carrusel de Frases (Integrado en el menú) -->
+        <div class="w-full mt-16 py-8 border-y border-white/5 overflow-hidden">
+            <div class="marquee-inner">
+                <div class="phrase-item">Boca Bahía <span>Restaurant</span></div>
+                <div class="phrase-item">Tradición <span>Antillana</span></div>
+                <div class="phrase-item">El mar en tu <span>mesa</span></div>
+                <div class="phrase-item">Vistas <span>inolvidables</span></div>
+                <div class="phrase-item">Pescado <span>fresco</span> hoy</div>
+                <div class="phrase-item">Boca <span>Bahía</span> es Cuba</div>
+                <div class="phrase-item">Boca Bahía <span>Restaurant</span></div>
+                <div class="phrase-item">Tradición <span>Antillana</span></div>
+                <div class="phrase-item">El mar en tu <span>mesa</span></div>
+                <div class="phrase-item">Vistas <span>inolvidables</span></div>
+                <div class="phrase-item">Pescado <span>fresco</span> hoy</div>
+                <div class="phrase-item">Boca <span>Bahía</span> es Cuba</div>
             </div>
         </div>
-        
-        <button class="category-button" data-content-id="aperitivos">🍽️ Aperitivos</button>
-        <div class="menu-content" id="aperitivos">
-            <h3>Aperitivos</h3>
-            <table class="menu-table">
-                <tr><td>Croquetas de Jamón (Ración: 5)</td><td>800</td></tr>
-                <tr><td>Empanadas de jamón y queso</td><td>300</td></tr>
-                <tr><td>Queso</td><td>250</td></tr>
-                <tr><td>Jamón</td><td>250</td></tr>
-                <tr><td>Pizza</td><td>300</td></tr>
-                <tr><td>Cangrejo</td><td>300</td></tr>
-                <tr><td>Camarón</td><td>300</td></tr>
-                <tr><td>Ensalada fría</td><td>450</td></tr>
-            </table>
 
-            <h3 style="margin-top: 20px;">Tostones y Platos Individuales</h3>
-            <table class="menu-table">
-                <tr><td>Tostones rellenos (Ración: 4) con jamón y queso</td><td>600</td></tr>
-                
-                <tr><td>Queso</td><td>500</td></tr>
-                <tr><td>Pizza</td><td>600</td></tr>
-                <tr><td>Jamón</td><td>500</td></tr>
-                <tr><td>Cangrejo</td><td>700</td></tr>
-                <tr><td>Camarón</td><td>700</td></tr>
-            </table>
+        <!-- Footer Logo Only -->
+        <div class="mt-12 text-center">
+            <h3 class="text-xl font-black tracking-tighter italic uppercase text-white/50 mb-2">BOCA BAHÍA <span class="text-indigo-500/50">RESTAURANT</span></h3>
+            <p class="text-[9px] text-gray-700 uppercase tracking-widest">Antilla, Holguín &copy; 2026</p>
+        </div>
 
-            <h3 style="margin-top: 20px;">Tacos (Ración: 3)</h3>
-            <table class="menu-table">
-                <tr><td>Camarón</td><td>750</td></tr>
-                <tr><td>Cerdo</td><td>700</td></tr>
-                <tr><td>Jamón y queso</td><td>650</td></tr>
-                <tr><td>Pescado</td><td>750</td></tr>
-            </table>
+    </main>
+
+    <script>
+        function toggleCategory(btn) {
+            const content = btn.nextElementSibling;
+            const icon = btn.querySelector('.fa-chevron-down');
             
-            <table class="menu-table">
-                <tr><td>Picadas de Jamón y queso</td><td>700</td></tr>
-            </table>
-        </div>
-
-        <button class="category-button" data-content-id="fuertes-mariscos">🥩 Platos Fuertes & Mariscos</button>
-        <div class="menu-content" id="fuertes-mariscos">
-            <h3>Platos Fuertes</h3>
-            <table class="menu-table">
-                <tr><td>Bistec de cerdo</td><td>1500</td></tr>
-                <tr><td>Chuleta de cerdo</td><td>1500</td></tr>
-                <tr><td>Fajitas de cerdo</td><td>1450</td></tr>
-                <tr><td>Milanesa de cerdo</td><td>1650</td></tr>
-                <tr><td>Pollo frito (tronchos)</td><td>1400</td></tr>
-                <tr><td>Pollo guisado</td><td>1500</td></tr>
-                <tr><td>Fricasé de cerdo</td><td>1500</td></tr>
-                <tr><td>Fricasé de ovejo</td><td>1500</td></tr>
-            </table>
-
-            <h3>Mariscos</h3>
-            <table class="menu-table">
-                <tr><td>Cangrejo a la criolla</td><td>1500</td></tr>
-                <tr><td>Camarones enchilados</td><td>1500</td></tr>
-                <tr><td>Camarones al ajillo</td><td>1400</td></tr>
-                <tr><td>Camarones a la diabla</td><td>1500</td></tr>
-                <tr><td>Camarones salteados</td><td>1400</td></tr>
-                <tr><td>Pulpo a la criolla</td><td>1500</td></tr>
-                <tr><td>Pulpo al ajillo</td><td>1400</td></tr>
-                <tr><td>Langosta al ajillo</td><td>1900</td></tr>
-                <tr><td>Langosta a la criolla</td><td>1950</td></tr>
-                <tr><td>Mariscada enchilada</td><td>1700</td></tr>
-            </table>
-        </div>
-
-        <button class="category-button" data-content-id="spaguettis">🍝 Spaguettis</button>
-        <div class="menu-content" id="spaguettis">
-            <h3>Spaguettis</h3>
-            <table class="menu-table">
-                <tr><td>Con jamón y queso</td><td>800</td></tr>
-                <tr><td>Napolitano</td><td>750</td></tr>
-                <tr><td>Boca Bahía especial</td><td>950</td></tr>
-                <tr><td>Chorizo</td><td>850</td></tr>
-                <tr><td>Con salchicha</td><td>650</td></tr>
-                <tr><td>Simple</td><td>500</td></tr>
-            </table>
-        </div>
-
-    </div> <script>
-        /*
-        ============================================================
-        JAVASCRIPT: Lógica del Acordeón (Colapso)
-        ============================================================
-        */
-        const buttons = document.querySelectorAll('.category-button');
-
-        buttons.forEach(button => {
-            button.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-content-id');
-                const content = document.getElementById(targetId);
-                const isActive = this.classList.contains('active');
-
-                // 1. Cierra todos los contenidos y quita la clase 'active' de todos los botones
-                document.querySelectorAll('.menu-content').forEach(c => {
-                    c.style.maxHeight = null;
-                });
-                document.querySelectorAll('.category-button').forEach(b => {
-                    b.classList.remove('active');
-                });
-
-                // 2. Si NO estaba activo, abre el contenido actual
-                if (!isActive) {
-                    this.classList.add('active');
-                    // Establece el 'maxHeight' a la altura de desplazamiento del contenido
-                    // para permitir que se abra suavemente.
-                    content.style.maxHeight = content.scrollHeight + "px";
+            // Cerrar otros
+            document.querySelectorAll('.menu-content').forEach(item => {
+                if (item !== content) {
+                    item.classList.remove('open');
+                    item.previousElementSibling.classList.remove('active');
+                    item.previousElementSibling.querySelector('.fa-chevron-down').style.transform = "rotate(0deg)";
                 }
-                // Si estaba activo, ya se cerró en el paso 1.
             });
-        });
 
+            // Toggle actual
+            const isOpen = content.classList.contains('open');
+            content.classList.toggle('open');
+            btn.classList.toggle('active');
+            
+            if (!isOpen) {
+                icon.style.transform = "rotate(180deg)";
+            } else {
+                icon.style.transform = "rotate(0deg)";
+            }
+        }
     </script>
-
 </body>
-</html>
+                                                                                                                         </html>
